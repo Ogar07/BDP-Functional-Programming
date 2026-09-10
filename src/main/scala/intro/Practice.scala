@@ -18,7 +18,11 @@ object Practice {
       * @param n amount of items to take.
       * @return the first n items of xs.
       */
-    def firstN(xs: List[Int], n: Int): List[Int] = ???
+    def firstN(xs: List[Int], n: Int): List[Int] = xs match {
+      case Nil => Nil
+      case _ if n <= 0 => Nil
+      case h :: t => h :: firstN(t, n - 1)
+    }
 
 
     /** Q11 (4p)
@@ -28,7 +32,14 @@ object Practice {
       * @param xs list to process.
       * @return the maximum value in the list.
       */
-    def maxValue(xs: List[Int]): Int = ???
+    def maxValue(xs: List[Int]): Int = {
+      def helper(xs: List[Int], currMax: Int): Int = xs match {
+        case Nil => currMax
+        case h :: t if h > currMax => helper(t, h) // new currMax
+        case _ :: t => helper(t, currMax) // currMax doesn't change
+      }
+      helper(xs, Int.MinValue)
+    }
 
     /** Q12 (3p)
      * given two Ints, generate the List[Int] with both numbers inclusive
@@ -37,7 +48,15 @@ object Practice {
      * intList(2,7) // List(2,3,4,5,6,7)
      * intList(3,0) // List()
      */
-    def intList(a: Int, b: Int) : List[Int] = ???
+    def intList(a: Int, b: Int): List[Int] = {
+      if (a > b) {
+        Nil
+      } else if (a == b) {
+        a :: Nil
+      } else {
+        a :: intList(a + 1, b)
+      }
+    }
 
     /**
      * Q13 (7p)
@@ -60,5 +79,20 @@ object Practice {
      * so although 2, 6 and 10 satisfy the function, they are thrown out.
      */
     // a helper method which you've written yourself
-    def myFilter[A](xs: List[A], f: A => Boolean) : List[A] = ???
+    def myFilter[A](xs: List[A], f: A => Boolean): List[A] = {
+
+      def helper(xs: List[A], keep: Boolean): List[A] = xs match {
+        case Nil => Nil
+        case h :: t if f(h) => // keep flag only flips when an element actually satisfies f
+          if (keep) {
+            h :: helper(t, keep = false)
+          } else {
+            helper(t, keep = true)
+          }
+        case _ :: t =>
+          helper(t, keep)
+      }
+
+      helper(xs, keep = true)
+    }
 }

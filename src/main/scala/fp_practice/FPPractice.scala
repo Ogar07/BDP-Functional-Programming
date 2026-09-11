@@ -15,7 +15,15 @@ object FPPractice {
       * @param xs the list to process.
       * @return the sum of the first 10 numbers larger than 25.
       */
-    def first10Above25(xs: List[Int]): Int = ???
+    def first10Above25(xs: List[Int]): Int =  {
+        def helper(currentList: List[Int], num: Int) : Int = currentList match {
+            case Nil => 0
+            case head :: tail if num == 0 => 0
+            case head :: tail => if (head > 25) head + helper(tail ,num - 1) else helper(tail ,num)
+        }
+
+        helper(xs, 10)
+    }
 
     /** Q21 (5p)
       * Provided with a list of all grades for each student of a course,
@@ -25,7 +33,18 @@ object FPPractice {
       * @param grades a list containing a list of grades for each student.
       * @return the amount of students with passing grades.
       */
-    def passingStudents(grades: List[List[Int]]): Int = ???
+    def passingStudents(grades: List[List[Int]]): Int = {
+        def listSum(list: List[Int]): Int = list match {
+            case Nil => 0
+            case head :: tail => head + listSum(tail)
+        }
+
+        grades match {
+            case Nil => 0
+            case x :: xs if x.isEmpty => passingStudents(xs)
+            case x :: xs => if (listSum(x).toDouble / x.length >= 5.75 && x.min >= 4) 1 + passingStudents(xs) else passingStudents(xs)
+        }
+    }
 
     /** Q22 (6p)
       * Return the length of the first list of which the first item's value is equal to the sum of all other items.
@@ -36,5 +55,16 @@ object FPPractice {
       * Read the documentation on the `Option` class to find out what you should return.
       * Hint: it is very similar to the `OptionalInt` you saw earlier.
       */
-    def headSumsTail(xs: List[List[Int]]): Option[Int] = ???
+    def headSumsTail(xs: List[List[Int]]): Option[Int] = {
+        def listSum(list: List[Int]): Int = list match {
+            case Nil => 0
+            case head :: tail => head + listSum(tail)
+        }
+
+        xs match {
+            case Nil => None
+            case x :: xs if x.isEmpty => headSumsTail(xs)
+            case x :: xs => if (listSum(x) == 2 * x.head) Some(x.length) else headSumsTail(xs)
+        }
+    }
 }

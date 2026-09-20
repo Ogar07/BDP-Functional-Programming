@@ -113,7 +113,7 @@ object Dataset {
     val formatter = new SimpleDateFormat("HH")
     formatter.setTimeZone(new SimpleTimeZone(0, "UTC"))
 
-    val parts: List[String] = input.map(commit => formatter.format(commit.commit.author.date)).map(time => {
+    val parts: List[String] = input.map(commit => formatter.format(commit.commit.committer.date)).map(time => {
       if (time.toInt >= 5 && time.toInt < 12) "morning"
       else if (time.toInt >= 12 && time.toInt < 17) "afternoon"
       else if (time.toInt >= 17 && time.toInt < 21) "evening"

@@ -25,7 +25,10 @@ object Dataset {
    * @param input the list of commits to process.
    * @return the average amount of additions in the commits that have stats data.
    */
-  def avgAdditions(input: List[Commit]): Int = ???
+  def avgAdditions(input: List[Commit]): Int = {
+    val additions = input.flatMap(commit => commit.stats).map(stats => stats.additions)
+    if (additions.nonEmpty) additions.sum / additions.size else 0
+  }
 
   /** Q24 (4p)
    * Find the hour of day (in 24h notation, UTC time) during which the most javascript (.js) files are changed in commits.
@@ -36,8 +39,15 @@ object Dataset {
    * @param input list of commits to process.
    * @return the hour and the amount of files changed during this hour.
    */
-  def jsTime(input: List[Commit]): (Int, Int) = ???
-
+  def jsTime(input: List[Commit]): (Int, Int) = {
+    val formatter = new SimpleDateFormat("HH")
+    formatter.setTimeZone(new SimpleTimeZone(0, "UTC"))
+    val changes: List[Int] = input.flatMap( commit => {
+      val hour = formatter.format(commit.commit.committer.date)
+      commit.files.filter(file => file.filename.exists(name => name.endsWith(".js"))).map(file => hour.toInt)
+    })
+    changes.groupBy(x => x).map(pair => (pair._1, pair._2.size)).maxBy(pair =>  pair._2)
+  }
 
   /** Q25 (5p)
    * For a given repository, output the name and amount of commits for the person
@@ -48,7 +58,10 @@ object Dataset {
    * @param repo  the repository name to consider.
    * @return the name and amount of commits for the top committer.
    */
-  def topCommitter(input: List[Commit], repo: String): (String, Int) = ???
+  def topCommitter(input: List[Commit], repo: String): (String, Int) = {
+    val comitters: List[String] = input.filter(commit => commit.url.contains(repo)).map( commit => commit.commit.author.name)
+    comitters.groupBy(identity).map(pair => (pair._1, pair._2.size)).maxBy(pair =>  pair._2)
+  }
 
   /** Q26 (9p)
    * For each repository, output the name and the amount of commits that were made to this repository in 2019 only.
@@ -60,7 +73,15 @@ object Dataset {
    *         Example output:
    *         Map("KosDP1987/students" -> 1, "giahh263/HQWord" -> 2)
    */
-  def commitsPerRepo(input: List[Commit]): Map[String, Int] = ???
+  def commitsPerRepo(input: List[Commit]): Map[String, Int] = {
+    val formatter = new SimpleDateFormat("yyyy")
+    formatter.setTimeZone(new SimpleTimeZone(0, "UTC"))
+
+    input.filter(commit => formatter.format(commit.commit.committer.date).equals("2019"))
+      .map(commit => commit.url.split("/")(4) + "/" + commit.url.split("/")(5)).groupBy(identity)
+      .map(pair => (pair._1, pair._2.size))
+  }
+
 
 
   /** Q27 (9p)
@@ -69,7 +90,10 @@ object Dataset {
    * @param input the list of commits to process.
    * @return 5 tuples containing the file extension and frequency of the most frequently appeared file types, ordered descendingly.
    */
-  def topFileFormats(input: List[Commit]): List[(String, Int)] = ???
+  def topFileFormats(input: List[Commit]): List[(String, Int)] = {
+    val types: List[String] = input.flatMap(commit => commit.files.map(file => file.filename.get.split('.').last))
+    types.groupBy(identity).map(pair => (pair._1, pair._2.size)).toList.sortBy(-_._2).take(5)
+  }
 
 
   /** Q28 (9p)
@@ -85,5 +109,17 @@ object Dataset {
    *
    * Hint: for the time, use `SimpleDateFormat` and `SimpleTimeZone`.
    */
-  def mostProductivePart(input: List[Commit]): (String, Int) = ???
+  def mostProductivePart(input: List[Commit]): (String, Int) = {
+    val formatter = new SimpleDateFormat("HH")
+    formatter.setTimeZone(new SimpleTimeZone(0, "UTC"))
+
+    val parts: List[String] = input.map(commit => formatter.format(commit.commit.author.date)).map(time => {
+      if (time.toInt >= 5 && time.toInt < 12) "morning"
+      else if (time.toInt >= 12 && time.toInt < 17) "afternoon"
+      else if (time.toInt >= 17 && time.toInt < 21) "evening"
+      else "night"
+    })
+
+    parts.groupBy(identity).map(pair => (pair._1, pair._2.size)).maxBy(pair =>  pair._2)
+  }
 }

@@ -1,5 +1,8 @@
 package intro
 
+import scala.::
+import scala.collection.immutable.Nil.:::
+
 /**
  * PART 2 - LISTS AND PATTERN MATCHING
  * you should implement recursive functions yourself
@@ -47,7 +50,10 @@ object PatternMatching2 {
      *
      * Example: twice(List.range(0,4)) // List(0, 0, 1, 1, 2, 2, 3, 3) 
      */
-    def twice[A](xs : List[A]) : List[A] = ???
+    def twice[A](xs : List[A]) : List[A] = xs match {
+      case Nil => Nil
+      case x :: tail => x :: x :: twice(tail)
+    }
 
     /** Q6 (2p)
      * You had a few drinks too much after a party and recorded a message for  
@@ -60,7 +66,10 @@ object PatternMatching2 {
      * turns into 
      * 		List("?gniod","ouy","era","woh",",ouy","yeH")
      */
-    def drunkWords(xs: List[String]) : List[String] = ???
+    def drunkWords(xs: List[String]) : List[String] = xs match {
+      case Nil => Nil
+      case x :: tail => drunkWords(tail) ::: List(x.reverse)
+    }
 
 
     /** Q7 (3p)
@@ -75,7 +84,10 @@ object PatternMatching2 {
      * NB! Note that we don't provide a test case for this exercise.
      * You are encouraged to write your own tests
      */
-    def myForAll[A](xs : List[A], f: A => Boolean) : Boolean = ???
+    def myForAll[A](xs : List[A], f: A => Boolean) : Boolean = xs match {
+      case Nil => true
+      case x :: tail => f(x) && myForAll(tail, f)
+    }
 
 
     /** Q8 (3p)
@@ -90,7 +102,11 @@ object PatternMatching2 {
      * 	lastElem(List()) // None
      * 	lastElem(List.range(0,3)) // Some(2) (range has exclusive ceiling)
      */
-    def lastElem[A](xs : List[A]) : Option[A] = ???
+    def lastElem[A](xs : List[A]) : Option[A] = xs match {
+      case Nil => None
+      case x :: Nil => Some(x)
+      case x :: tail => lastElem(tail)
+    }
 
     /** Q9 (4p)
      * Take two lists and concatenate them, returning the result
@@ -102,6 +118,9 @@ object PatternMatching2 {
      * 		append(List(), List()) 			// List()
      * 		append(List(1,3,5), List(2,4)) 	// List(1,3,5,2,4)
      */
-    def append[A](xs: List[A], ys: List[A]) : List[A] = ???
+    def append[A](xs: List[A], ys: List[A]) : List[A] = xs match {
+      case Nil => ys
+      case x :: tail => x :: append(tail, ys)
+    }
 
 }
